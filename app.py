@@ -1,11 +1,12 @@
 import os
 from flask import Flask, render_template, request
+from textblob import TextBlob
 from google.cloud import translate_v2 as translate
-from google.cloud import language_v1
-
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "react-ef60e-firebase-adminsdk-hqoze-e399bdac16.json"
+from google.cloud import language
 
 app = Flask(__name__)
+
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "react-ef60e-firebase-adminsdk-hqoze-e399bdac16.json"
 
 @app.route('/')
 def index():
@@ -19,22 +20,25 @@ def analyze():
     if language == 'english':
         blob = TextBlob(text)
     elif language == 'hindi':
-        # Use Google Cloud Translation API
         client = translate.Client()
         result = client.translate(text, target_language='en')
         english_text = result['translatedText']
         blob = TextBlob(english_text)
-    
-    sentiment_score = blob.sentiment.polarity
+
+    client = language.LanguageServiceClient()  # Initialize the language client
+    document = language.Document(content=text, type_=language.Document.Type.PLAIN_TEXT)
+    sentiment = client.analyze_sentiment(document=document).document_sentiment
+
+    sentiment_score = sentiment.score
 
     if sentiment_score > 0:
-        sentiment = 'Positive'
+        sentiment_label = 'Positive'
     elif sentiment_score < 0:
-        sentiment = 'Negative'
+        sentiment_label = 'Negative'
     else:
-        sentiment = 'Neutral'
+        sentiment_label = 'Neutral'
 
-    return render_template('index.html', text=text, sentiment=sentiment)
+    return render_template('index.html', text=text, sentiment=sentiment_label)
 
 # Rest of the code remains the same
 

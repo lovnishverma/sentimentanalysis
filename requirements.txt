@@ -3,3 +3,4 @@ requests
 textblob
 google-api-python-client
 google-cloud-translate
+google-cloud-language
