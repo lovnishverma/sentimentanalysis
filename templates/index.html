@@ -5,33 +5,17 @@
 </head>
 <body>
     <h1>Sentiment Analysis</h1>
-    
     <form action="/analyze" method="post">
-        <textarea name="text" rows="4" cols="50" placeholder="Enter text for analysis"></textarea><br>
-        <select name="language">
-            <option value="english">English</option>
-            <option value="hindi">Hindi</option>
-        </select><br>
+        <textarea name="text" rows="4" cols="50"></textarea>
+        <br>
         <input type="submit" value="Analyze">
     </form>
     
-    <hr>
-    
-    <form action="/analyze_social" method="post">
-        <input type="text" name="url" placeholder="Enter social media URL">
-        <input type="submit" value="Analyze from URL">
-    </form>
-    
-    <hr>
-    
     {% if text %}
-    <p><strong>Text:</strong></p>
+    <h2>Input Text:</h2>
     <p>{{ text }}</p>
-    <p><strong>Sentiment:</strong> {{ sentiment }}</p>
-    {% endif %}
-    
-    {% if error %}
-    <p><strong>Error:</strong> {{ error }}</p>
+    <h2>Sentiment:</h2>
+    <p>{{ sentiment }}</p>
     {% endif %}
 </body>
 </html>
