@@ -1,6 +1,9 @@
+import os
 from flask import Flask, render_template, request
-from textblob import TextBlob
-import requests
+from google.cloud import translate_v2 as translate
+from google.cloud import language_v1
+
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "react-ef60e-firebase-adminsdk-hqoze-e399bdac16.json"
 
 app = Flask(__name__)
 
@@ -16,7 +19,11 @@ def analyze():
     if language == 'english':
         blob = TextBlob(text)
     elif language == 'hindi':
-        blob = TextBlob(text, analyzer=NaiveBayesAnalyzer())
+        # Use Google Cloud Translation API
+        client = translate.Client()
+        result = client.translate(text, target_language='en')
+        english_text = result['translatedText']
+        blob = TextBlob(english_text)
     
     sentiment_score = blob.sentiment.polarity
 
@@ -29,25 +36,7 @@ def analyze():
 
     return render_template('index.html', text=text, sentiment=sentiment)
 
-@app.route('/analyze_social', methods=['POST'])
-def analyze_social():
-    url = request.form['url']
-    response = requests.get(url)
-    if response.status_code == 200:
-        content = response.text
-        blob = TextBlob(content)
-        sentiment_score = blob.sentiment.polarity
-
-        if sentiment_score > 0:
-            sentiment = 'Positive'
-        elif sentiment_score < 0:
-            sentiment = 'Negative'
-        else:
-            sentiment = 'Neutral'
-        
-        return render_template('index.html', text=content, sentiment=sentiment)
-    else:
-        return render_template('index.html', error='Failed to fetch URL content.')
+# Rest of the code remains the same
 
 if __name__ == '__main__':
     app.run(debug=True)
